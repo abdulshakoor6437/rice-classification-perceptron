@@ -1,0 +1,134 @@
+# Rice Classification with a Single-Layer Perceptron (From Scratch)
+
+A binary classifier that tells **Cammeo** and **Osmancik** rice grains apart using only their shape measurements. The Single-Layer Perceptron is implemented **from scratch with Python and NumPy**. No scikit-learn or other prebuilt ML models are used for training or evaluation.
+
+The project also includes a full-page interactive dashboard where you can enter measurements for a rice grain and see the prediction on the same page.
+
+![Dashboard](images/dashboard.png)
+
+---
+
+## Dataset
+
+- **Name:** Rice (Cammeo and Osmancik)
+- **Source (UCI):** https://archive.ics.uci.edu/dataset/545/rice+cammeo+and+osmancik
+- **Source (Kaggle):** YOUR_KAGGLE_LINK_HERE
+- **DOI:** https://doi.org/10.24432/C5MW4Z
+- **License:** CC BY 4.0
+- **Size:** 3,810 grains, 7 numeric features, 1 binary target, no missing values
+
+| Feature | Description |
+|---|---|
+| Area | Number of pixels inside the grain boundary |
+| Perimeter | Length of the grain boundary |
+| Major_Axis_Length | Longest line that can be drawn on the grain |
+| Minor_Axis_Length | Shortest line that can be drawn on the grain |
+| Eccentricity | How round the equivalent ellipse is |
+| Convex_Area | Pixel count of the smallest convex shape around the grain |
+| Extent | Ratio of the grain region to its bounding box |
+
+**Target:** Cammeo (1630 grains) and Osmancik (2180 grains).
+
+**Citation:** Cinar, I. and Koklu, M. (2019). *Classification of Rice Varieties Using Artificial Intelligence Methods.* International Journal of Intelligent Systems and Applications in Engineering, 7(3), 188-194. https://doi.org/10.18201/ijisae.2019355381
+
+---
+
+## Project workflow
+
+1. **Load data:** read the `.arff` file with SciPy into a pandas DataFrame
+2. **Explore:** shape, data types, missing values, class balance, summary statistics
+3. **Preprocess:**
+   - Label encoding (Osmancik = 0, Cammeo = 1)
+   - Duplicate check and outlier check (IQR method, boxplots)
+   - Correlation heatmap
+   - Stratified 80/20 train/test split (NumPy)
+   - Standardization (z-score) using training-set mean and standard deviation only, to avoid data leakage
+4. **Model:** Single-Layer Perceptron written from scratch
+5. **Evaluate:** confusion matrix, accuracy, precision, recall, specificity and F1, all computed with NumPy
+6. **Dashboard:** full-page interactive HTML dashboard with a live prediction panel
+
+---
+
+## The perceptron
+
+- Step activation function: output is 1 if `w·x + b >= 0`, otherwise 0
+- Learning rule: `w = w + lr * (target - prediction) * x`, and the same update for the bias
+- Weights start at zero, and the training data is shuffled every epoch
+
+| Setting | Value |
+|---|---|
+| Learning rate | 0.01 |
+| Epochs | 50 |
+| Train samples | 3,048 |
+| Test samples | 762 |
+
+---
+
+## Results (test set)
+
+| Metric | Value |
+|---|---|
+| Accuracy | 0.9160 |
+| Precision | 0.8722 |
+| Recall | 0.9417 |
+| Specificity | 0.8968 |
+| F1-Score | 0.9056 |
+
+**Confusion matrix** (Cammeo = positive class)
+
+| | Predicted Osmancik | Predicted Cammeo |
+|---|---|---|
+| **Actual Osmancik** | 391 (TN) | 45 (FP) |
+| **Actual Cammeo** | 19 (FN) | 307 (TP) |
+
+- Train accuracy is 0.9213 and test accuracy is 0.9160, a gap of only 0.0052, so the model is not overfitting.
+- The two rice varieties overlap slightly, so the data is not perfectly linearly separable. Because of this, the number of errors per epoch fluctuates instead of reaching zero, which is normal for a perceptron.
+- Recall is higher than precision, which means the model rarely misses a Cammeo grain but sometimes labels an Osmancik grain as Cammeo.
+
+---
+
+## Interactive dashboard
+
+The file `dashboard/index.html` is fully self-contained and works offline. Download it and open it in any browser.
+
+It includes:
+- KPI cards (accuracy, precision, recall, specificity, F1, test samples)
+- A **Test a Rice Grain** panel: enter the 7 measurements, or load a random real Cammeo or Osmancik sample, and see the predicted variety, the score and a per-feature breakdown of what pushed the decision
+- Charts: class distribution, errors per epoch, training accuracy per epoch, confusion matrix, metrics, learned weights, test-set scatter with misclassified points, train vs test accuracy
+
+---
+
+## How to run
+
+**Option 1: Google Colab (recommended)**
+1. Open `rice_perceptron.ipynb` in Google Colab
+2. Upload `Rice_Cammeo_Osmancik.arff` to the Colab files panel
+3. Run all cells from top to bottom
+
+**Option 2: Local machine**
+```bash
+git clone https://github.com/abdulshakoor6437/rice-classification-perceptron-from-scratch.git
+cd rice-classification-perceptron-from-scratch
+pip install numpy pandas matplotlib scipy plotly
+jupyter notebook rice_perceptron.ipynb
+```
+
+---
+
+## Tech stack
+
+Python, NumPy (model and metrics), pandas (data handling), SciPy (reading the ARFF file), Matplotlib and Plotly (visualization), HTML/CSS/JavaScript (dashboard prediction panel)
+
+---
+
+## Author
+
+**Abdul Shakoor**
+BS Artificial Intelligence, SZABIST University
+GitHub: [@abdulshakoor6437](https://github.com/abdulshakoor6437)
+
+---
+
+## Acknowledgements
+
+Dataset by Ilkay Cinar and Murat Koklu (Selcuk University, Turkey), shared through the UCI Machine Learning Repository under CC BY 4.0.
